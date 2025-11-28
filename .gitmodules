@@ -1,0 +1,4 @@
+[submodule "megatron"]
+	path = megatron
+	url = https://github.com/NVIDIA/Megatron-LM.git
+	branch = core_r0.14.0
