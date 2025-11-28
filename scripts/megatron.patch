@@ -1,0 +1,121 @@
+diff --git a/megatron/core/dist_checkpointing/exchange_utils.py b/megatron/core/dist_checkpointing/exchange_utils.py
+index def79fb77..5689fec18 100644
+--- a/megatron/core/dist_checkpointing/exchange_utils.py
++++ b/megatron/core/dist_checkpointing/exchange_utils.py
+@@ -63,7 +63,7 @@ class ShardDistribution(NamedTuple):
+ def _shard_size(sh_ten: ShardedTensor):
+     """Returns size in bytes of a given sharded tensor."""
+     if sh_ten.flattened_range is None:
+-        numel = np.product(sh_ten.local_shape)
++        numel = np.productuct(sh_ten.local_shape)
+     else:
+         numel = sh_ten.flattened_range.stop - sh_ten.flattened_range.start
+     return numel * torch._utils._element_size(sh_ten.dtype)
+diff --git a/megatron/core/dist_checkpointing/mapping.py b/megatron/core/dist_checkpointing/mapping.py
+index a98e99f0f..181e6e0c8 100644
+--- a/megatron/core/dist_checkpointing/mapping.py
++++ b/megatron/core/dist_checkpointing/mapping.py
+@@ -199,7 +199,7 @@ class ShardedTensor(ShardedBase):
+             )
+ 
+         # TODO: np.unravel_index?
+-        mask = np.zeros(np.product(self.local_shape), dtype=bool)
++        mask = np.zeros(np.productuct(self.local_shape), dtype=bool)
+         mask[self.flattened_range] = True
+         return np.nonzero(mask.reshape(self.local_shape))
+ 
+@@ -435,7 +435,7 @@ class ShardedTensor(ShardedBase):
+             # Now `data` is flattened and sliced, so we must compute local_shape manually
+ 
+             local_shape = _update_tuple(self.local_shape, dim, length)
+-            other_dims_volume = np.prod(
++            other_dims_volume = np.product(
+                 _update_tuple(local_shape, dim, 1)
+             )  # 4 in the example above
+             volume_before_split = other_dims_volume * start  # 4 in the example above
+diff --git a/megatron/core/dist_checkpointing/strategies/resharding.py b/megatron/core/dist_checkpointing/strategies/resharding.py
+index d343d98d9..6a461e611 100644
+--- a/megatron/core/dist_checkpointing/strategies/resharding.py
++++ b/megatron/core/dist_checkpointing/strategies/resharding.py
+@@ -73,7 +73,7 @@ def nd_flattened_tensor_reformulated_global_shape(sh_ten: ShardedTensor) -> Tupl
+     """
+ 
+     assert is_nd_flattened_tensor(sh_ten), sh_ten
+-    return sh_ten.axis_fragmentations + (int(np.prod(sh_ten.local_shape)),)
++    return sh_ten.axis_fragmentations + (int(np.product(sh_ten.local_shape)),)
+ 
+ 
+ def is_nd_flattened_tensor(sh_ten: Any) -> bool:
+diff --git a/megatron/core/dist_checkpointing/validation.py b/megatron/core/dist_checkpointing/validation.py
+index 0962052a0..79b716dc3 100644
+--- a/megatron/core/dist_checkpointing/validation.py
++++ b/megatron/core/dist_checkpointing/validation.py
+@@ -509,7 +509,7 @@ def _validate_sharding_for_key_flattened(tensors_by_shard):
+         all_slices.append((sharding.flattened_range.start, sharding.flattened_range.stop))
+ 
+     starts, stops = map(np.asarray, zip(*sorted(all_slices)))
+-    expected_size = np.product(local_shape)
++    expected_size = np.productuct(local_shape)
+     if starts[0] != 0 or stops[-1] != expected_size or not np.all(starts[1:] == stops[:-1]):
+         raise CheckpointingException(
+             f"Flattened ranges dont cover the whole shard {tensors_by_shard[0]} of size {expected_size}. Ranges: {(starts, stops)}"
+@@ -525,7 +525,7 @@ def _validate_objects_for_key(sharded_objects: List[ShardedObject]):
+         duplicates = {k: cnt for k, cnt in Counter(unique_keys).items() if cnt > 1}
+         logger.error(f"Duplicate ShardedObject keys and counts: {duplicates}")
+         raise CheckpointingException(f"Duplicate ShardedObject keys: {list(duplicates.keys())}")
+-    expected_shard_num = np.prod(sharded_objects[0][1].global_shape)
++    expected_shard_num = np.product(sharded_objects[0][1].global_shape)
+     if len(unique_keys) != expected_shard_num:
+         err_msg = f"Invalid access pattern: {expected_shard_num - len(unique_keys)} ShardedObject are missing."
+         logger.error(f"{err_msg} Existing shards: {unique_keys}")
+diff --git a/megatron/core/hyper_comm_grid.py b/megatron/core/hyper_comm_grid.py
+index dce2aa16a..07a5e6bc4 100644
+--- a/megatron/core/hyper_comm_grid.py
++++ b/megatron/core/hyper_comm_grid.py
+@@ -102,7 +102,7 @@ class HyperCommGrid:
+                 "initialize torch.distributed before creating HyperCommGrid."
+             )
+         self.rank_offset = rank_offset
+-        self.size = np.prod(shape)
++        self.size = np.product(shape)
+         if rank_offset < 0:
+             raise ValueError(f"rank_offset must be non-negative, got {rank_offset}")
+         if self.size > world_size - rank_offset:
+diff --git a/megatron/core/parallel_state.py b/megatron/core/parallel_state.py
+index a40c85a88..833803fdf 100644
+--- a/megatron/core/parallel_state.py
++++ b/megatron/core/parallel_state.py
+@@ -335,9 +335,9 @@ def create_hierarchical_groups(
+         rearranged_ranks = einops.rearrange(
+             np.array(ranks),
+             "(l s u) -> (l u) s",
+-            u=int(np.prod(hierarchical_group_sizes[:level])),
++            u=int(np.product(hierarchical_group_sizes[:level])),
+             s=hierarchical_group_sizes[level],
+-            l=int(np.prod(hierarchical_group_sizes[level + 1 :])),
++            l=int(np.product(hierarchical_group_sizes[level + 1 :])),
+         ).tolist()
+         for sub_ranks in rearranged_ranks:
+             sub_group = create_group(
+@@ -868,7 +868,7 @@ def initialize_model_parallel(
+             _CONTEXT_PARALLEL_GROUP = group
+             _CONTEXT_PARALLEL_GLOBAL_RANKS = ranks
+         if hierarchical_context_parallel_sizes:
+-            assert np.prod(hierarchical_context_parallel_sizes) == context_parallel_size
++            assert np.product(hierarchical_context_parallel_sizes) == context_parallel_size
+             global _HIERARCHICAL_CONTEXT_PARALLEL_GROUPS
+             hierarchical_groups, _ = create_hierarchical_groups(
+                 rank,
+diff --git a/megatron/core/transformer/mlp.py b/megatron/core/transformer/mlp.py
+index 23cbc16b7..01339588d 100644
+--- a/megatron/core/transformer/mlp.py
++++ b/megatron/core/transformer/mlp.py
+@@ -226,7 +226,7 @@ def apply_swiglu_sharded_factory(
+     swiglu_shard_axis = 0
+     prepend_axis_num = len(sharded_offsets)
+     original_shape = original_sh_ten.local_shape
+-    original_numel = int(np.prod(original_shape))
++    original_numel = int(np.product(original_shape))
+     local_axis_size = original_shape[swiglu_shard_axis]
+     assert (
+         original_sh_ten.global_offset[swiglu_shard_axis + prepend_axis_num] % local_axis_size == 0
