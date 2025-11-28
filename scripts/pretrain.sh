@@ -73,6 +73,7 @@ TRAIN_CONFIG[init-method-std]=0.02
 TRAIN_CONFIG[optimizer]=adam
 TRAIN_CONFIG[log-interval]=5
 TRAIN_CONFIG[log-throughput]=true
+TRAIN_CONFIG[moe-aux-loss-coeff]=0.01
 
 # Dataset.
 DATA_ARGS_PATH=$(mktemp)
