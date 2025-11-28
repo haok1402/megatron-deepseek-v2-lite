@@ -1,29 +1,7 @@
-diff --git a/megatron/core/dist_checkpointing/exchange_utils.py b/megatron/core/dist_checkpointing/exchange_utils.py
-index def79fb77..5689fec18 100644
---- a/megatron/core/dist_checkpointing/exchange_utils.py
-+++ b/megatron/core/dist_checkpointing/exchange_utils.py
-@@ -63,7 +63,7 @@ class ShardDistribution(NamedTuple):
- def _shard_size(sh_ten: ShardedTensor):
-     """Returns size in bytes of a given sharded tensor."""
-     if sh_ten.flattened_range is None:
--        numel = np.product(sh_ten.local_shape)
-+        numel = np.productuct(sh_ten.local_shape)
-     else:
-         numel = sh_ten.flattened_range.stop - sh_ten.flattened_range.start
-     return numel * torch._utils._element_size(sh_ten.dtype)
 diff --git a/megatron/core/dist_checkpointing/mapping.py b/megatron/core/dist_checkpointing/mapping.py
-index a98e99f0f..181e6e0c8 100644
+index a98e99f0f..cc5584ce6 100644
 --- a/megatron/core/dist_checkpointing/mapping.py
 +++ b/megatron/core/dist_checkpointing/mapping.py
-@@ -199,7 +199,7 @@ class ShardedTensor(ShardedBase):
-             )
- 
-         # TODO: np.unravel_index?
--        mask = np.zeros(np.product(self.local_shape), dtype=bool)
-+        mask = np.zeros(np.productuct(self.local_shape), dtype=bool)
-         mask[self.flattened_range] = True
-         return np.nonzero(mask.reshape(self.local_shape))
- 
 @@ -435,7 +435,7 @@ class ShardedTensor(ShardedBase):
              # Now `data` is flattened and sliced, so we must compute local_shape manually
  
@@ -47,18 +25,9 @@ index d343d98d9..6a461e611 100644
  
  def is_nd_flattened_tensor(sh_ten: Any) -> bool:
 diff --git a/megatron/core/dist_checkpointing/validation.py b/megatron/core/dist_checkpointing/validation.py
-index 0962052a0..79b716dc3 100644
+index 0962052a0..2107b6f65 100644
 --- a/megatron/core/dist_checkpointing/validation.py
 +++ b/megatron/core/dist_checkpointing/validation.py
-@@ -509,7 +509,7 @@ def _validate_sharding_for_key_flattened(tensors_by_shard):
-         all_slices.append((sharding.flattened_range.start, sharding.flattened_range.stop))
- 
-     starts, stops = map(np.asarray, zip(*sorted(all_slices)))
--    expected_size = np.product(local_shape)
-+    expected_size = np.productuct(local_shape)
-     if starts[0] != 0 or stops[-1] != expected_size or not np.all(starts[1:] == stops[:-1]):
-         raise CheckpointingException(
-             f"Flattened ranges dont cover the whole shard {tensors_by_shard[0]} of size {expected_size}. Ranges: {(starts, stops)}"
 @@ -525,7 +525,7 @@ def _validate_objects_for_key(sharded_objects: List[ShardedObject]):
          duplicates = {k: cnt for k, cnt in Counter(unique_keys).items() if cnt > 1}
          logger.error(f"Duplicate ShardedObject keys and counts: {duplicates}")

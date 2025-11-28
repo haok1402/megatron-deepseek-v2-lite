@@ -37,6 +37,7 @@ rm -rvf apex
 pip3 install zstandard six regex pyyaml transformers wandb pybind11 tensorboard
 
 # Apply the megatron patch.
+# NumPy 2.0 and later, use np.product instead of np.prod.
 pushd megatron
 git apply ../scripts/megatron.patch
 popd
