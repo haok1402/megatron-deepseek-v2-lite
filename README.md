@@ -27,7 +27,7 @@ bash scripts/pretrain.sh
 (DP2, PP2, EP2) on 8xH100 GPUs.
 
 ```
- [2025-11-28 18:48:17] iteration       50/    5000 | consumed samples:        51200 | elapsed time per iteration (ms): 61674.3 | throughput per GPU (TFLOP/s/GPU): 68.2
- [2025-11-28 18:53:25] iteration       55/    5000 | consumed samples:        56320 | elapsed time per iteration (ms): 61614.9 | throughput per GPU (TFLOP/s/GPU): 68.2
- [2025-11-28 18:58:34] iteration       60/    5000 | consumed samples:        61440 | elapsed time per iteration (ms): 61681.5 | throughput per GPU (TFLOP/s/GPU): 68.2
+ [2025-11-28 21:47:03] iteration      220/    5000 | elapsed time per iteration (ms): 61272.8 | throughput per GPU (TFLOP/s/GPU): 68.6
+ [2025-11-28 21:52:08] iteration      225/    5000 | elapsed time per iteration (ms): 61195.4 | throughput per GPU (TFLOP/s/GPU): 68.7
+ [2025-11-28 21:57:14] iteration      230/    5000 | elapsed time per iteration (ms): 61112.0 | throughput per GPU (TFLOP/s/GPU): 68.8
 ```
