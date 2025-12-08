@@ -3,9 +3,6 @@
 
 set -eu
 
-source $HOME/miniconda3/etc/profile.d/conda.sh
-conda activate megatron
-
 export WORKSPACE=$PWD/workspace
 export CUDA_HOME=/usr/local/cuda-12.8
 export PYTHONPATH=$PWD/megatron:${PYTHONPATH:-}

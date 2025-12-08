@@ -11,7 +11,7 @@ MAIN_ARGS=()
 MAIN_ARGS+=(--include $FILE)
 MAIN_ARGS+=(--local-dir $WORKSPACE/dataset/rawtxt)
 MAIN_ARGS+=(--repo-type dataset)
-MAIN_ARGS+=(mlfoundations/dclm-baseline-1.0 )
+MAIN_ARGS+=(mlfoundations/dclm-baseline-1.0)
 hf download ${MAIN_ARGS[@]}
 
 # Decompress that shard for preprocessing with Megatron-LM.

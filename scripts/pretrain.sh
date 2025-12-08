@@ -22,6 +22,7 @@ INFRA_CONFIG[cross-entropy-loss-fusion]=true
 INFRA_CONFIG[cross-entropy-fusion-impl]=te
 INFRA_CONFIG[expert-model-parallel-size]=2
 INFRA_CONFIG[pipeline-model-parallel-size]=2
+INFRA_CONFIG[num-virtual-stages-per-pipeline-rank]=2
 
 # Embedding.
 MODEL_CONFIG[tokenizer-type]=HuggingFaceTokenizer
