@@ -1,33 +1,34 @@
-# megatron-deepseek-v2-lite
+# Megatron DeepSeek-V2-Lite
 
-A minimal codebase for pretraining DeepSeek-V2-Lite with Megatron-LM.
+Pretrain [DeepSeek-V2-Lite](https://huggingface.co/deepseek-ai/DeepSeek-V2-Lite) with [Megatron-LM](https://github.com/NVIDIA/Megatron-LM).
 
-## Getting Started
+## Requirements
 
-First, set up the Conda environment with the installation script.
+- CUDA 12.8
+- Python 3.12
 
-```
+## Usage
+
+Setup environment:
+
+```bash
 bash scripts/install.sh
 ```
 
-Next, preprocess the training corpus.
+Preprocess data:
 
-```
+```bash
 bash scripts/preprocess.sh
 ```
 
-Finally, launch the pretraining.
+Train:
 
-```
+```bash
 bash scripts/pretrain.sh
 ```
 
-## Performance Metrics
+## Configuration
 
-(DP2, PP2, EP2) on 8xH100 GPUs.
+Edit `scripts/pretrain.sh` to modify model architecture, training hyperparameters, and parallelism settings.
 
-```
- [2025-11-28 21:47:03] iteration      220/    5000 | elapsed time per iteration (ms): 61272.8 | throughput per GPU (TFLOP/s/GPU): 68.6
- [2025-11-28 21:52:08] iteration      225/    5000 | elapsed time per iteration (ms): 61195.4 | throughput per GPU (TFLOP/s/GPU): 68.7
- [2025-11-28 21:57:14] iteration      230/    5000 | elapsed time per iteration (ms): 61112.0 | throughput per GPU (TFLOP/s/GPU): 68.8
-```
+Multi-node training is supported via Slurm (`SLURM_NNODES`, `SLURM_NODEID`, `SLURM_STEP_NODELIST`).
