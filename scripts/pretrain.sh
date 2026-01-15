@@ -56,18 +56,18 @@ MODEL_CONFIG[moe-router-dtype]=fp32
 MODEL_CONFIG[moe-router-score-function]=softmax
 MODEL_CONFIG[moe-router-topk]=6
 
-TRAIN_CONFIG[train-iters]=5000
+TRAIN_CONFIG[train-iters]=1000
 TRAIN_CONFIG[micro-batch-size]=1
 TRAIN_CONFIG[global-batch-size]=1024
 TRAIN_CONFIG[seq-length]=2048
 TRAIN_CONFIG[lr]=3e-4
-TRAIN_CONFIG[min-lr]=3e-5
-TRAIN_CONFIG[lr-warmup-iters]=200
-TRAIN_CONFIG[lr-decay-iters]=4800
+TRAIN_CONFIG[min-lr]=1e-5
+TRAIN_CONFIG[lr-warmup-iters]=50
+TRAIN_CONFIG[lr-decay-iters]=950
 TRAIN_CONFIG[lr-decay-style]=cosine
 TRAIN_CONFIG[init-method-std]=0.02
 TRAIN_CONFIG[optimizer]=adam
-TRAIN_CONFIG[log-interval]=5
+TRAIN_CONFIG[log-interval]=1
 TRAIN_CONFIG[log-throughput]=true
 
 DATA_ARGS_PATH=$(mktemp)
@@ -107,6 +107,6 @@ TRUN_ARGS+=(--nnodes=$NNODES --node-rank=$NODE_RANK --nproc-per-node=$NPROC_PER_
 TRUN_ARGS+=(--rdzv-backend=$RDZV_BACKEND --rdzv-endpoint=$RDZV_ENDPOINT)
 
 SCRIPT=megatron/pretrain_gpt.py
-OUTPUT=$WORKSPACE/pretrain_${NODE_RANK}.log
+OUTPUT=pretrain_${NNODES}x8h100_${NODE_RANK}.log
 
 torchrun ${TRUN_ARGS[@]} $SCRIPT ${MAIN_ARGS[@]} 2>&1 | tee $OUTPUT
